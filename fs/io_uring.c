@@ -8521,9 +8521,10 @@ static int io_remove_personalities(int id, void *p, void *data)
 	return 0;
 }
 
-static void io_run_ctx_fallback(struct io_ring_ctx *ctx)
+static bool io_run_ctx_fallback(struct io_ring_ctx *ctx)
 {
 	struct callback_head *work, *head, *next;
+	bool executed = false;
 
 	do {
 		do {
@@ -8540,7 +8541,10 @@ static void io_run_ctx_fallback(struct io_ring_ctx *ctx)
 			work = next;
 			cond_resched();
 		} while (work);
+		executed = true;
 	} while (1);
+
+	return executed;
 }
 
 static void io_ring_exit_work(struct work_struct *work)
@@ -8680,6 +8684,7 @@ static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
 		ret |= io_poll_remove_all(ctx, task, files);
 		ret |= io_kill_timeouts(ctx, task, files);
 		ret |= io_run_task_work();
+		ret |= io_run_ctx_fallback(ctx);
 		io_cqring_overflow_flush(ctx, true, task, files);
 		if (!ret)
 			break;
