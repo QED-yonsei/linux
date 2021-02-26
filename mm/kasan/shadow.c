@@ -81,6 +81,7 @@ void kasan_poison(const void *addr, size_t size, u8 value)
 	addr = kasan_reset_tag(addr);
 
 	/* Skip KFENCE memory if called explicitly outside of sl*b. */
+<<<<<<< HEAD
 	if (is_kfence_address(addr))
 		return;
 
@@ -91,6 +92,13 @@ void kasan_poison(const void *addr, size_t size, u8 value)
 
 	shadow_start = kasan_mem_to_shadow(addr);
 	shadow_end = kasan_mem_to_shadow(addr + size);
+=======
+	if (is_kfence_address(address))
+		return;
+
+	shadow_start = kasan_mem_to_shadow(address);
+	shadow_end = kasan_mem_to_shadow(address + size);
+>>>>>>> 2b8305260fb3... kfence, kasan: make KFENCE compatible with KASAN
 
 	__memset(shadow_start, value, shadow_end - shadow_start);
 }
@@ -125,8 +133,20 @@ void kasan_unpoison(const void *addr, size_t size)
 	if (is_kfence_address(addr))
 		return;
 
+<<<<<<< HEAD
 	if (WARN_ON((unsigned long)addr & KASAN_GRANULE_MASK))
 		return;
+=======
+	/*
+	 * Skip KFENCE memory if called explicitly outside of sl*b. Also note
+	 * that calls to ksize(), where size is not a multiple of machine-word
+	 * size, would otherwise poison the invalid portion of the word.
+	 */
+	if (is_kfence_address(address))
+		return;
+
+	kasan_poison(address, size, tag);
+>>>>>>> 2b8305260fb3... kfence, kasan: make KFENCE compatible with KASAN
 
 	/* Unpoison all granules that cover the object. */
 	kasan_poison(addr, round_up(size, KASAN_GRANULE_SIZE), tag);

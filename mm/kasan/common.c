@@ -477,6 +477,7 @@ static inline void *____kasan_kmalloc(struct kmem_cache *cache,
 	if (is_kfence_address(kasan_reset_tag(object)))
 		return (void *)object;
 
+<<<<<<< HEAD
 	/*
 	 * The object has already been unpoisoned by kasan_slab_alloc() for
 	 * kmalloc() or by kasan_krealloc() for krealloc().
@@ -491,6 +492,8 @@ static inline void *____kasan_kmalloc(struct kmem_cache *cache,
 		kasan_poison_last_granule((void *)object, size);
 
 	/* Poison the aligned part of the redzone. */
+=======
+>>>>>>> 2b8305260fb3... kfence, kasan: make KFENCE compatible with KASAN
 	redzone_start = round_up((unsigned long)(object + size),
 				KASAN_GRANULE_SIZE);
 	redzone_end = round_up((unsigned long)(object + cache->object_size),

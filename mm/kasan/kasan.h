@@ -332,6 +332,7 @@ static inline u8 kasan_random_tag(void) { return 0; }
 
 static inline void kasan_poison(const void *addr, size_t size, u8 value)
 {
+<<<<<<< HEAD
 	addr = kasan_reset_tag(addr);
 
 	/* Skip KFENCE memory if called explicitly outside of sl*b. */
@@ -344,10 +345,21 @@ static inline void kasan_poison(const void *addr, size_t size, u8 value)
 		return;
 
 	hw_set_mem_tag_range((void *)addr, size, value);
+=======
+	address = kasan_reset_tag(address);
+
+	/* Skip KFENCE memory if called explicitly outside of sl*b. */
+	if (is_kfence_address(address))
+		return;
+
+	hw_set_mem_tag_range((void *)address,
+			round_up(size, KASAN_GRANULE_SIZE), value);
+>>>>>>> 2b8305260fb3... kfence, kasan: make KFENCE compatible with KASAN
 }
 
 static inline void kasan_unpoison(const void *addr, size_t size)
 {
+<<<<<<< HEAD
 	u8 tag = get_tag(addr);
 
 	addr = kasan_reset_tag(addr);
@@ -361,6 +373,18 @@ static inline void kasan_unpoison(const void *addr, size_t size)
 	size = round_up(size, KASAN_GRANULE_SIZE);
 
 	hw_set_mem_tag_range((void *)addr, size, tag);
+=======
+	u8 tag = get_tag(address);
+
+	address = kasan_reset_tag(address);
+
+	/* Skip KFENCE memory if called explicitly outside of sl*b. */
+	if (is_kfence_address(address))
+		return;
+
+	hw_set_mem_tag_range((void *)address,
+			round_up(size, KASAN_GRANULE_SIZE), tag);
+>>>>>>> 2b8305260fb3... kfence, kasan: make KFENCE compatible with KASAN
 }
 
 static inline bool kasan_byte_accessible(const void *addr)
